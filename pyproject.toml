@@ -1,7 +1,7 @@
 [project]
 name = "claude-translate"
-version = "0.1.0"
-description = "Opt-in bilingual transport and display for Claude Code"
+version = "0.2.0"
+description = "Reversible bilingual transport and display for Claude Code"
 requires-python = ">=3.12"
 dependencies = [
     "aiohttp>=3.14.5",
@@ -9,7 +9,6 @@ dependencies = [
 ]
 
 [project.scripts]
-claude-zh = "claude_translate.cli:launch_main"
 claude-translate = "claude_translate.cli:main"
 
 [build-system]

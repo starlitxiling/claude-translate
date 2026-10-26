@@ -180,10 +180,12 @@ def test_real_claude_cli_roundtrip(tmp_path):
     report = tmp_path / "report.json"
     settings = Path.home() / ".claude/settings.json"
     before = hashlib.sha256(settings.read_bytes()).hexdigest()
-    executable = str(Path(sys.executable).parent / "claude-zh")
     result = subprocess.run(
         [
-            executable,
+            sys.executable,
+            "-m",
+            "claude_translate",
+            "launch",
             "--translation-report",
             str(report),
             "-p",

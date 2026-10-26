@@ -7,12 +7,12 @@
 安装后，在需要工作的项目目录运行：
 
 ```sh
-claude-zh
+claude
 ```
 
 输入中文即可。输入翻译完成后才会发送给 Claude；英文回复按完成的行批次翻译显示。代码块、行内代码、可识别路径和链接保持原样。模型生成的文件仍遵循用户要求的语言。
 
-常用 Claude 参数可以直接传入，例如 `claude-zh --resume`、`claude-zh -p '解释递归'`。可通过 `claude-zh --translation-config /path/to/.env.local` 指定另一份翻译配置。
+常用 Claude 参数可以直接传入，例如 `claude --resume`、`claude -p '解释递归'`。可通过 `claude --translation-config /path/to/.env.local` 指定另一份翻译配置。`claude --help`、`claude --version` 和管理子命令直接进入原生程序，无需调用翻译 API。
 
 诊断会调用真实 DeepSeek API，产生少量翻译费用：
 
@@ -20,7 +20,7 @@ claude-zh
 claude-translate doctor
 ```
 
-关闭当前会话即停止本次代理；下一次运行普通 `claude` 就是不带翻译的原版。翻译组件不修改全局 Hook、原模型、工具权限、shell alias 或后台启动项。
+关闭当前会话即停止本次代理；下次运行 `claude` 会重新启用翻译。`claude-original` 可直接运行不带翻译的原版。翻译组件不修改全局 Hook、原模型、工具权限、shell alias 或后台启动项。
 
 ## 安装与配置
 
@@ -34,15 +34,29 @@ uv tool install --reinstall .
 
 将 `.env.example` 中的配置填写到 `~/.config/claude-translate/.env.local`，目录权限设为 700，文件权限设为 600。`DEEPSEEK_API_KEY` 使用真实值，其他字段通常保留默认值。项目根 `.env.local` 可指向该文件，已加入忽略规则。
 
+配置完成后启用默认命令接管：
+
+```sh
+claude-translate enable
+```
+
+接管仅替换 `~/.local/bin/claude` 的原生符号链接，原始链接目标记录在专用目录的 `command.json`，原生二进制不变。接管状态不一致或 `claude-original` 已存在时会报错，不覆盖其他修改。升级 Claude 原生版本前先停用接管，升级完成后可重新启用。
+
 `deepseek-flash` 是官方 API 标识，2026-10-26 对应 DeepSeek-V4.1-Flash-1017；这是会随官方更新的模型别名，不是固定权重版本。翻译请求关闭思考模式。
 
 默认从用户及项目 Claude settings 的 `env` 解析原上游地址。复杂配置或托管环境可在专用配置设置 `CLAUDE_TRANSLATE_UPSTREAM_BASE_URL`，明确原上游地址。仅支持 Anthropic Messages 格式；不支持 Bedrock、Vertex、Foundry、远程会话、后台运行、`--bare` 或额外 `--settings`。
 
 ## 停用与卸载
 
-临时停用：退出 `claude-zh`，使用 `claude`。
+单次使用原版：运行 `claude-original`。
 
-退出所有翻译会话后，卸载命令和独立 Python 环境：
+退出所有翻译会话后，恢复原来的 `claude` 命令：
+
+```sh
+claude-translate disable
+```
+
+确认恢复后，卸载命令和独立 Python 环境：
 
 ```sh
 uv tool uninstall claude-translate
@@ -67,7 +81,7 @@ rm -r ~/.config/claude-translate
 
 ## 组件与验证
 
-`config` 管理配置值；`DeepSeekTranslator` 管理翻译与缓存；`ProtectedText` 保护字面片段；`PromptRegistry` 登记及精确替换输入；`ProxyServer` 代理协议；`DisplayTranslator` 维护跨批次代码围栏；`HookClient` 接入 Claude hooks；`Launcher` 管理进程和临时配置。HTTP 客户端及数据库连接通过构造参数显式传递。
+`config` 管理配置值；`DeepSeekTranslator` 管理翻译与缓存；`ProtectedText` 保护字面片段；`PromptRegistry` 登记及精确替换输入；`ProxyServer` 代理协议；`DisplayTranslator` 维护跨批次代码围栏；`HookClient` 接入 Claude hooks；`Launcher` 管理进程和临时配置；`CommandIntegration` 管理默认命令接管与恢复。HTTP 客户端及数据库连接通过构造参数显式传递。
 
 运行本地测试：
 
@@ -81,4 +95,4 @@ uv run pytest -q
 CLAUDE_TRANSLATE_LIVE=1 uv run pytest -q
 ```
 
-测试使用真实 SQLite、真实 HTTP 服务和真实 CLI，不使用 mock、stub 或 fake。开发过程及验证证据见 `docs/0-双向翻译链路/`。
+测试使用真实 SQLite、真实 HTTP 服务和真实 CLI，不使用 mock、stub 或 fake。开发过程及验证证据见 `docs/`。

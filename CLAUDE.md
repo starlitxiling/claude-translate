@@ -1,6 +1,6 @@
 # Claude Translate
 
-独立的 Claude Code 双向翻译组件。用户通过 `claude-zh` 开启，本地代理与 Hook 仅作用于本次会话。
+独立的 Claude Code 双向翻译组件。启用命令接管后，用户直接运行 `claude`；本地代理与 Hook 仅作用于本次会话。`claude-translate disable` 可恢复原版入口。
 
 ## 维护约束
 

@@ -2,7 +2,6 @@ import json
 import os
 import secrets
 import shlex
-import shutil
 import signal
 import subprocess
 import sys
@@ -11,6 +10,7 @@ import time
 from pathlib import Path
 from urllib.parse import urlsplit
 
+from claude_translate.command_integration import CommandIntegration
 from claude_translate.config import TranslationConfig, validate_url
 from claude_translate.hook_client import HookClient
 from claude_translate.proxy_server import LOCAL_HEADER, write_private_json
@@ -105,6 +105,7 @@ class Launcher:
                 server = subprocess.Popen(
                     [
                         sys.executable,
+                        "-I",
                         "-m",
                         "claude_translate",
                         "serve",
@@ -138,6 +139,7 @@ class Launcher:
                         command = shlex.join(
                             [
                                 sys.executable,
+                                "-I",
                                 "-m",
                                 "claude_translate",
                                 "hook",
@@ -216,4 +218,4 @@ class Launcher:
 
     @classmethod
     def from_path(cls, path: Path):
-        return cls(path, TranslationConfig.load(path), shutil.which("claude") or "")
+        return cls(path, TranslationConfig.load(path), CommandIntegration.native_path())

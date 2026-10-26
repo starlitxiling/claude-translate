@@ -4,17 +4,18 @@ import signal
 import subprocess
 import sys
 import time
-from pathlib import Path
 
 
 def test_sigterm_cleans_real_cli_and_proxy(tmp_path):
     config = tmp_path / ".env.local"
     config.write_text("DEEPSEEK_API_KEY=unused-for-startup\n")
     config.chmod(0o600)
-    executable = str(Path(sys.executable).parent / "claude-zh")
     process = subprocess.Popen(
         [
-            executable,
+            sys.executable,
+            "-m",
+            "claude_translate",
+            "launch",
             "--translation-config",
             str(config),
             "-p",
