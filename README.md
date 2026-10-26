@@ -42,6 +42,10 @@ uv tool install --reinstall .
 
 将 `.env.example` 中的配置填写到 `~/.config/claude-translate/.env.local`，目录权限设为 700，文件权限设为 600。`DEEPSEEK_API_KEY` 使用真实值，其他字段通常保留默认值。项目根 `.env.local` 可指向该文件，已加入忽略规则。
 
+仓库只跟踪使用占位符的 `.env.example`。根目录的其他环境配置、翻译数据库及旁路文件、日志和临时运行 JSON 均已忽略；Python 缓存由各目录自己的 `.gitignore` 管理。真实密钥不要写入源码、文档或测试样本。
+
+项目级私有 Claude 配置 `.claude/settings.local.json` 及其备份也不会入库；可共享的 `.claude/settings.json` 仍可提交，但其中不要填写真实凭据。
+
 配置完成后启用默认命令接管：
 
 ```sh
