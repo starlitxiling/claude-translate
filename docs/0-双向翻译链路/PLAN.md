@@ -7,13 +7,14 @@
 - 本机 Claude Code 版本为 2.1.307；支持 `--settings` 和 `--append-system-prompt`。
 - 官方 `MessageDisplay` 将显示文本与模型上下文分离；`UserPromptSubmit` 支持追加上下文、阻止发送，不支持直接替换输入。
 - DeepSeek 官方聊天 API 模型标识为 `deepseek-flash`，目前对应 V4.1-Flash-1017；使用 `thinking.type=disabled`。
+- 当前上游实际拒绝 Claude Code 2.1.300 及以上。用户随后明确授权替换现有版本，已降至 2.1.299，并在保留备份后关闭自动更新。
 - 文档：https://code.claude.com/docs/en/hooks 、https://api-docs.deepseek.com/api/create-chat-completion/ 。
 
 ## 组件划分
 
 1. 配置：只保存地址、模型、超时等值；HTTP 客户端、缓存、代理句柄等运行时对象通过参数显式传递。
-2. 翻译器：独立 DeepSeek 客户端；保护 fenced code、inline code、链接地址、路径与协议包裹；验证保护片段完整性；输入失败阻止提交，输出失败保留英文。
-3. 输入登记：UserPromptSubmit 提交原始用户输入到本地服务并缓存英文译文；不把翻译追加为额外上下文。代理仅替换已登记的用户文本，工具结果、系统提示和其他协议字段保持原样。
+2. 翻译器：独立 DeepSeek 客户端；使用纯文本译文；保护 fenced code、inline code、链接地址、路径与协议包裹；验证保护片段完整性；输入失败阻止提交，输出失败保留英文。
+3. 输入登记：UserPromptSubmit 提交原始用户输入到本地服务并以 SQLite 缓存英文译文，原文仅存哈希；不把翻译追加为额外上下文。代理仅替换已登记的用户文本，工具结果、系统提示和其他协议字段保持原样。缓存支持恢复会话，并可随专用配置目录删除。
 4. 代理：仅监听随机 loopback 端口；本次启动生成访问令牌；代理 Anthropic 消息及流式响应，移除本地认证字段；保持原始英文响应。
 5. 显示：MessageDisplay 将自然语言译成中文；按 message_id 跟踪跨批次代码围栏状态，避免跨批次破坏代码。
 6. 启动器：`claude-zh` 启动本地服务、生成临时 settings 并启动真实 `claude`；现有工具权限保持；进程结束清理服务和临时文件。凭据不传入命令行。提供诊断和卸载说明。

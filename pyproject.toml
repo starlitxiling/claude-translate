@@ -1,0 +1,44 @@
+[project]
+name = "claude-translate"
+version = "0.1.0"
+description = "Opt-in bilingual transport and display for Claude Code"
+requires-python = ">=3.12"
+dependencies = [
+    "aiohttp>=3.14.5",
+    "python-dotenv>=1.2.4",
+]
+
+[project.scripts]
+claude-zh = "claude_translate.cli:launch_main"
+claude-translate = "claude_translate.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.11,<0.12"]
+build-backend = "uv_build"
+
+[tool.uv]
+python-preference = "only-managed"
+
+[[tool.uv.index]]
+name = "tuna"
+url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
+default = true
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+markers = ["live: invokes real remote APIs and requires explicit opt-in"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.1",
+    "ruff>=0.17.2",
+]
