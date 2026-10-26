@@ -17,6 +17,7 @@ from claude_translate.deep_seek_translator import DeepSeekTranslator
 from claude_translate.display_translator import DisplayTranslator
 from claude_translate.prompt_registry import PromptRegistry
 from claude_translate.proxy_server import LOCAL_HEADER, ProxyServer
+from claude_translate.subagent_reports import SubagentReports
 
 pytestmark = [
     pytest.mark.live,
@@ -135,6 +136,7 @@ async def test_real_local_service_and_deepseek_hooks():
                 translator,
                 registry,
                 DisplayTranslator(translator),
+                SubagentReports(translator),
             )
             runner = web.AppRunner(server.application(), access_log=None)
             await runner.setup()

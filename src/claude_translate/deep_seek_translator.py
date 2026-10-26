@@ -8,7 +8,9 @@ from claude_translate.protected_text import ProtectedText
 
 
 class TranslationError(RuntimeError):
-    pass
+    def __init__(self, message: str, *, retryable: bool = False):
+        super().__init__(message)
+        self.retryable = retryable
 
 
 class DeepSeekTranslator:
@@ -74,7 +76,7 @@ class DeepSeekTranslator:
                 raise TranslationError("DeepSeek 回复未完整结束")
             translated = choice["message"]["content"]
             if not isinstance(translated, str) or not translated.strip():
-                raise TranslationError("DeepSeek 返回空译文")
+                raise TranslationError("DeepSeek 返回空译文", retryable=True)
             translated = protected.restore(translated)
             leading = source[: len(source) - len(source.lstrip())]
             trailing = source[len(source.rstrip()) :]
@@ -82,7 +84,7 @@ class DeepSeekTranslator:
         except (TimeoutError, aiohttp.ClientError) as exc:
             raise TranslationError("DeepSeek 连接失败或超时") from exc
         except (KeyError, IndexError, TypeError, ValueError) as exc:
-            raise TranslationError("DeepSeek 译文格式或代码保护校验失败") from exc
+            raise TranslationError("DeepSeek 译文格式或代码保护校验失败", retryable=True) from exc
         self.cache[key] = translated
         while len(self.cache) > 256:
             self.cache.popitem(last=False)

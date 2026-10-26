@@ -1,0 +1,145 @@
+{
+  "source": "Real Claude Code 2.1.299 foreground Agent execution on 2026-10-26; only machine-specific paths normalized.",
+  "events": [
+    {
+      "session_id": "e436a2d1-ab16-4db3-8e41-46407c1ebc5c",
+      "transcript_path": "/transcripts/probe/e436a2d1-ab16-4db3-8e41-46407c1ebc5c.jsonl",
+      "cwd": "/probe",
+      "prompt_id": "59567377-e603-4114-88d2-4355cdea170d",
+      "permission_mode": "default",
+      "hook_event_name": "UserPromptSubmit",
+      "prompt": "Call translation-probe once in the foreground to read /probe/probe.txt. Wait for its final result, then reply with one short English summary.\nimport json, os, shlex, subprocess, sys, tempfile\nfrom pathlib import Path\nroot=Path(tempfile.mkdtemp(prefix='claude-subagent-probe-'))\n(root/'probe.txt').write_text('The input path is local. The output remains a plain text report.\\n')\nobserver=root/'observe.py'\nobserver.write_text('''import json, os, sys\\nfrom pathlib import Path\\nevent=json.load(sys.stdin)\\nfd=os.open(Path(__file__).with_name(\"events.jsonl\"),os.O_WRONLY|os.O_CREAT|os.O_APPEND,0o600)\\nos.write(fd,(json.dumps(event)+\"\\\\n\").encode())\\nos.close(fd)\\nprint(\"{}\")\\n''')\ncommand=shlex.join([sys.executable,'-I',str(observer)])\nhooks={}\nfor name in ['MessageDisplay','UserPromptSubmit','SubagentStart','SubagentStop','PreToolUse','PostToolUse']:\n    entry={'hooks':[{'type':'command','command':command,'timeout':10}]}\n    if name in ['PreToolUse','PostToolUse']:entry['matcher']='Agent|SubagentHandback'\n    hooks[name]=[entry]\n(root/'settings.json').write_text(json.dumps({'hooks':hooks}))\nagents={'translation-probe':{'description':'A small read-only probe of subagent handoff behavior.',\n    'prompt':'Use English only. First write one brief progress sentence. Read the requested probe.txt file. Return two brief English sentences as your final report. Do not change files.', 'tools':['Read']}}\n(root/'agents.json').write_text(json.dumps(agents))\nprint('PROBE_DIR='+str(root),flush=True)\nargs=[str(Path.home()/'.local/share/claude/versions/2.1.299'),'--settings',str(root/'settings.json'),\n      '--agents',str(root/'agents.json'),'--tools','Agent,Read','--allowedTools','Agent','Read',\n      '--strict-mcp-config','--mcp-config','{\"mcpServers\":{}}','--max-turns','6',\n      '--output-format','stream-json','--verbose','--forward-subagent-text','--no-session-persistence',\n      '--append-system-prompt','Use English for this read-only diagnostic. Invoke the Agent tool exactly once as requested. Do not use any other delegation workflow.',\n      '-p',f'Call translation-probe once in the foreground to read {root}/probe.txt. Wait for its final result, then reply with one short English summary.']\nwith (root/'stdout.jsonl').open('w') as output, (root/'stderr.txt').open('w') as errors:\n    result=subprocess.run(args,cwd=root,stdout=output,stderr=errors,timeout=180)\nprint('exit_code:',result.returncode)\nevents=[json.loads(x) for x in (root/'events.jsonl').read_text().splitlines()] if (root/'events.jsonl').exists() else []\nfor e in events:\n    out={k:e[k] for k in ['hook_event_name','session_id','agent_id','agent_type','transcript_path','agent_transcript_path','tool_name','message_id','index','final'] if k in e}\n    if 'delta' in e:out['delta_preview']=e['delta'][:200]\n    if 'last_assistant_message' in e:out['last_preview']=e['last_assistant_message'][:300]\n    if 'tool_response' in e:out['tool_response']=e['tool_response']\n    if e.get('tool_name')=='SubagentHandback':out['tool_input']=e.get('tool_input')\n    print(json.dumps(out,ensure_ascii=False))\n"
+    },
+    {
+      "session_id": "e436a2d1-ab16-4db3-8e41-46407c1ebc5c",
+      "transcript_path": "/transcripts/probe/e436a2d1-ab16-4db3-8e41-46407c1ebc5c.jsonl",
+      "cwd": "/probe",
+      "prompt_id": "59567377-e603-4114-88d2-4355cdea170d",
+      "permission_mode": "default",
+      "effort": {
+        "level": "high"
+      },
+      "hook_event_name": "PreToolUse",
+      "tool_name": "Agent",
+      "tool_input": {
+        "description": "Read probe.txt file",
+        "prompt": "Read the file /probe/probe.txt and report its contents in two brief English sentences. Do not change any files.",
+        "subagent_type": "translation-probe",
+        "model": "opus",
+        "run_in_background": false
+      },
+      "tool_use_id": "toolu_012CXjpBhnushjSFsdmbptLB"
+    },
+    {
+      "session_id": "e436a2d1-ab16-4db3-8e41-46407c1ebc5c",
+      "transcript_path": "/transcripts/probe/e436a2d1-ab16-4db3-8e41-46407c1ebc5c.jsonl",
+      "cwd": "/probe",
+      "prompt_id": "59567377-e603-4114-88d2-4355cdea170d",
+      "agent_id": "abd40db8b259798ad",
+      "agent_type": "translation-probe",
+      "hook_event_name": "SubagentStart"
+    },
+    {
+      "session_id": "e436a2d1-ab16-4db3-8e41-46407c1ebc5c",
+      "transcript_path": "/transcripts/probe/e436a2d1-ab16-4db3-8e41-46407c1ebc5c.jsonl",
+      "cwd": "/probe",
+      "prompt_id": "59567377-e603-4114-88d2-4355cdea170d",
+      "permission_mode": "default",
+      "agent_id": "abd40db8b259798ad",
+      "agent_type": "translation-probe",
+      "effort": {
+        "level": "high"
+      },
+      "hook_event_name": "SubagentStop",
+      "stop_hook_active": false,
+      "agent_transcript_path": "/transcripts/probe/e436a2d1-ab16-4db3-8e41-46407c1ebc5c/subagents/agent-abd40db8b259798ad.jsonl",
+      "last_assistant_message": "The file `/probe/probe.txt` holds one line: \"The input path is local. The output remains a plain text report.\" I only read the file and did not change any files.",
+      "background_tasks": [],
+      "session_crons": []
+    },
+    {
+      "session_id": "e436a2d1-ab16-4db3-8e41-46407c1ebc5c",
+      "transcript_path": "/transcripts/probe/e436a2d1-ab16-4db3-8e41-46407c1ebc5c.jsonl",
+      "cwd": "/probe",
+      "prompt_id": "59567377-e603-4114-88d2-4355cdea170d",
+      "permission_mode": "default",
+      "effort": {
+        "level": "high"
+      },
+      "hook_event_name": "PostToolUse",
+      "tool_name": "Agent",
+      "tool_input": {
+        "description": "Read probe.txt file",
+        "prompt": "Read the file /probe/probe.txt and report its contents in two brief English sentences. Do not change any files.",
+        "subagent_type": "translation-probe",
+        "model": "opus",
+        "run_in_background": false
+      },
+      "tool_response": {
+        "status": "completed",
+        "prompt": "Read the file /probe/probe.txt and report its contents in two brief English sentences. Do not change any files.",
+        "agentId": "abd40db8b259798ad",
+        "agentType": "translation-probe",
+        "harnessNoteCount": 0,
+        "harnessTailCount": 0,
+        "harnessSectionHash": "92fe96c7089a3a59",
+        "content": [
+          {
+            "type": "text",
+            "text": "The file `/probe/probe.txt` holds one line: \"The input path is local. The output remains a plain text report.\" I only read the file and did not change any files."
+          }
+        ],
+        "resolvedModel": "claude-opus-5-5",
+        "totalDurationMs": 11647,
+        "totalTokens": 7022,
+        "totalToolUseCount": 1,
+        "usage": {
+          "output_tokens_details": {
+            "thinking_tokens": 0
+          },
+          "input_tokens": 2,
+          "cache_creation_input_tokens": 282,
+          "cache_read_input_tokens": 6641,
+          "output_tokens": 97,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 282,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard",
+          "fallback_credit": null
+        },
+        "toolStats": {
+          "readCount": 1,
+          "searchCount": 0,
+          "bashCount": 0,
+          "editFileCount": 0,
+          "linesAdded": 0,
+          "linesRemoved": 0,
+          "otherToolCount": 0
+        },
+        "canContinueAgent": false
+      },
+      "tool_use_id": "toolu_012CXjpBhnushjSFsdmbptLB",
+      "duration_ms": 11648
+    },
+    {
+      "session_id": "e436a2d1-ab16-4db3-8e41-46407c1ebc5c",
+      "transcript_path": "/transcripts/probe/e436a2d1-ab16-4db3-8e41-46407c1ebc5c.jsonl",
+      "cwd": "/probe",
+      "prompt_id": "59567377-e603-4114-88d2-4355cdea170d",
+      "hook_event_name": "MessageDisplay",
+      "turn_id": "cd3a5a2d-15fc-4215-b725-9765bf821891",
+      "message_id": "36ca32f5-c89d-4f3e-822a-b411e8554433",
+      "index": 0,
+      "final": true,
+      "delta": "I ran the translation-probe subagent once and waited for it to finish. It read `probe.txt` and found one line: \"The input path is local. The output remains a plain text report.\" It didn't change any files."
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "source": "Real Claude Code 2.1.299 background Agent events on 2026-10-26; machine-specific paths normalized.",
+  "events": [
+    {
+      "session_id": "b943e260-01e5-4ef8-ad5e-e45f89e59c83",
+      "transcript_path": "/transcripts/-private-var-folders--9-7pm30rp57nnc-rcgzydprw640000gn-T-pytest-of-wujie-pytest-637-test-real-subagent-handoff-is-1/b943e260-01e5-4ef8-ad5e-e45f89e59c83.jsonl",
+      "cwd": "/probe-background",
+      "prompt_id": "b2f0c68f-06c0-4882-88fb-49f1245b3ca8",
+      "permission_mode": "default",
+      "hook_event_name": "UserPromptSubmit",
+      "prompt": "请用 Agent 工具调用一次 translation-probe 子代理，后台运行（run_in_background=true），然后等待任务完成，让它读取 /probe-background/probe.txt。最终用一句话概括报告。不得修改文件。"
+    },
+    {
+      "session_id": "b943e260-01e5-4ef8-ad5e-e45f89e59c83",
+      "transcript_path": "/transcripts/-private-var-folders--9-7pm30rp57nnc-rcgzydprw640000gn-T-pytest-of-wujie-pytest-637-test-real-subagent-handoff-is-1/b943e260-01e5-4ef8-ad5e-e45f89e59c83.jsonl",
+      "cwd": "/probe-background",
+      "prompt_id": "b2f0c68f-06c0-4882-88fb-49f1245b3ca8",
+      "permission_mode": "default",
+      "effort": {
+        "level": "high"
+      },
+      "hook_event_name": "PostToolUse",
+      "tool_name": "Agent",
+      "tool_input": {
+        "description": "Read probe fixture file",
+        "prompt": "Read the file /probe-background/probe.txt using the Read tool. Do not modify any files. Report back in English: the file's exact contents (quote them verbatim) and a brief description of what the file contains. If the file is missing or empty, say so explicitly.",
+        "subagent_type": "translation-probe",
+        "model": "opus",
+        "run_in_background": true
+      },
+      "tool_response": {
+        "isAsync": true,
+        "status": "async_launched",
+        "agentId": "a92f7d599a41290e7",
+        "description": "Read probe fixture file",
+        "resolvedModel": "claude-opus-5-5",
+        "prompt": "Read the file /probe-background/probe.txt using the Read tool. Do not modify any files. Report back in English: the file's exact contents (quote them verbatim) and a brief description of what the file contains. If the file is missing or empty, say so explicitly.",
+        "outputFile": "/private/tmp/claude-501/-private-var-folders--9-7pm30rp57nnc-rcgzydprw640000gn-T-pytest-of-wujie-pytest-637-test-real-subagent-handoff-is-1/b943e260-01e5-4ef8-ad5e-e45f89e59c83/tasks/a92f7d599a41290e7.output",
+        "canReadOutputFile": true,
+        "canContinueAgent": false
+      },
+      "tool_use_id": "toolu_01PKVduNrBEtyvZwuq1cvwns",
+      "duration_ms": 7
+    },
+    {
+      "session_id": "b943e260-01e5-4ef8-ad5e-e45f89e59c83",
+      "transcript_path": "/transcripts/-private-var-folders--9-7pm30rp57nnc-rcgzydprw640000gn-T-pytest-of-wujie-pytest-637-test-real-subagent-handoff-is-1/b943e260-01e5-4ef8-ad5e-e45f89e59c83.jsonl",
+      "cwd": "/probe-background",
+      "prompt_id": "94a6dac2-acc7-4b2b-bfc6-4ee7d7ce8fdf",
+      "permission_mode": "default",
+      "hook_event_name": "UserPromptSubmit",
+      "prompt": "<task-notification>\n<task-id>a92f7d599a41290e7</task-id>\n<tool-use-id>toolu_01PKVduNrBEtyvZwuq1cvwns</tool-use-id>\n<output-file>/private/tmp/claude-501/-private-var-folders--9-7pm30rp57nnc-rcgzydprw640000gn-T-pytest-of-wujie-pytest-637-test-real-subagent-handoff-is-1/b943e260-01e5-4ef8-ad5e-e45f89e59c83/tasks/a92f7d599a41290e7.output</output-file>\n<status>completed</status>\n<summary>Agent \"Read probe fixture file\" finished</summary>\n<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>\n<result>The file `/probe-background/probe.txt` has one line of text followed by a trailing newline: \"The blue notebook contains three pages. No files were changed.\" It's a short plain-text probe file that describes a blue notebook with three pages, and the sentence \"No files were changed.\" is part of the file's text, not a report from me (I only read the file and modified nothing).</result>\n<usage><subagent_tokens>7952</subagent_tokens><tool_uses>1</tool_uses><duration_ms>12671</duration_ms></usage>\n</task-notification>"
+    }
+  ]
+}

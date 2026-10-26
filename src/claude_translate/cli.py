@@ -89,7 +89,7 @@ def main():
     serve_parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     serve_parser.add_argument("--runtime", type=Path, required=True)
     hook = sub.add_parser("hook", help="Claude Code Hook 入口")
-    hook.add_argument("kind", choices=["submit", "display"])
+    hook.add_argument("kind", choices=["submit", "display", "subagent"])
     hook.add_argument("--runtime", type=Path, required=True)
     check = sub.add_parser("doctor", help="调用真实 DeepSeek API 检查双向翻译")
     check.add_argument("--config", type=Path, default=DEFAULT_CONFIG)

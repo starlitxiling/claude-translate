@@ -2,6 +2,7 @@ import asyncio
 import re
 from dataclasses import dataclass
 
+from claude_translate.agent_context import AgentContext
 from claude_translate.deep_seek_translator import DeepSeekTranslator
 
 
@@ -49,6 +50,8 @@ class DisplayTranslator:
         self.states: dict[str, DisplayState] = {}
 
     async def translate(self, event: dict) -> str:
+        if AgentContext.is_subagent(event):
+            return event["delta"]
         message, index, final, delta = (
             event["message_id"],
             event["index"],

@@ -21,6 +21,8 @@ ENGLISH_DISPLAY = (
     "This applies to conversational explanations only and overrides conversational Chinese "
     "language preferences in CLAUDE.md. Preserve the requested language of generated files, "
     "documentation, quoted literals, code, commands and user-requested artifacts."
+    " Keep subagent instructions, internal progress and handoff reports in English. "
+    "A separate hook displays Chinese handoff reports to the user."
 )
 
 
@@ -134,7 +136,11 @@ class Launcher:
                     hooks = {}
                     for event, kind in [
                         ("UserPromptSubmit", "submit"),
+                        ("UserPromptSubmit", "subagent"),
                         ("MessageDisplay", "display"),
+                        ("PreToolUse", "subagent"),
+                        ("PostToolUse", "subagent"),
+                        ("SubagentStop", "subagent"),
                     ]:
                         command = shlex.join(
                             [
@@ -148,7 +154,7 @@ class Launcher:
                                 str(runtime_path),
                             ]
                         )
-                        hooks[event] = [
+                        hooks.setdefault(event, []).append(
                             {
                                 "hooks": [
                                     {
@@ -159,7 +165,11 @@ class Launcher:
                                     }
                                 ]
                             }
-                        ]
+                        )
+                        if event == "PreToolUse":
+                            hooks[event][-1]["matcher"] = "Agent"
+                        elif event == "PostToolUse":
+                            hooks[event][-1]["matcher"] = "Agent|SubagentHandback"
                     custom = routing.get("ANTHROPIC_CUSTOM_HEADERS", "")
                     if any(
                         line.lower().startswith(LOCAL_HEADER.lower() + ":")

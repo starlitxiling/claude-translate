@@ -1,6 +1,6 @@
 [project]
 name = "claude-translate"
-version = "0.2.0"
+version = "0.3.0"
 description = "Reversible bilingual transport and display for Claude Code"
 requires-python = ">=3.12"
 dependencies = [

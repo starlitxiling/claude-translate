@@ -1,0 +1,73 @@
+{
+  "claude_version": "2.1.299",
+  "package_version": "0.3.0",
+  "tests_passed": 65,
+  "subagent_runs": [
+    {
+      "mode": "handback",
+      "counters": {
+        "registered": 1,
+        "rewritten_blocks": 2,
+        "model_requests": 6,
+        "display_batches": 1,
+        "display_failures": 0,
+        "subagent_inputs_skipped": 0,
+        "subagent_display_skipped": 0,
+        "subagent_notifications_passthrough": 1,
+        "subagent_reports_displayed": 1,
+        "subagent_report_failures": 0,
+        "subagent_report_duplicates": 0,
+        "subagent_events_ignored": 0,
+        "subagent_background_launches": 0,
+        "subagent_handbacks_seen": 1,
+        "subagent_report_retries": 0,
+        "translation_calls": 3,
+        "cache_hits": 0
+      }
+    },
+    {
+      "mode": "background",
+      "counters": {
+        "registered": 1,
+        "rewritten_blocks": 3,
+        "model_requests": 5,
+        "display_batches": 2,
+        "display_failures": 0,
+        "subagent_inputs_skipped": 0,
+        "subagent_display_skipped": 0,
+        "subagent_notifications_passthrough": 1,
+        "subagent_reports_displayed": 1,
+        "subagent_report_failures": 0,
+        "subagent_report_duplicates": 0,
+        "subagent_events_ignored": 0,
+        "subagent_background_launches": 1,
+        "subagent_handbacks_seen": 0,
+        "subagent_report_retries": 0,
+        "translation_calls": 4,
+        "cache_hits": 0
+      }
+    },
+    {
+      "mode": "foreground",
+      "counters": {
+        "registered": 1,
+        "rewritten_blocks": 2,
+        "model_requests": 4,
+        "display_batches": 1,
+        "display_failures": 0,
+        "subagent_inputs_skipped": 0,
+        "subagent_display_skipped": 0,
+        "subagent_notifications_passthrough": 0,
+        "subagent_reports_displayed": 1,
+        "subagent_report_failures": 0,
+        "subagent_report_duplicates": 0,
+        "subagent_events_ignored": 0,
+        "subagent_background_launches": 0,
+        "subagent_handbacks_seen": 0,
+        "subagent_report_retries": 0,
+        "translation_calls": 3,
+        "cache_hits": 0
+      }
+    }
+  ]
+}

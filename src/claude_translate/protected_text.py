@@ -17,7 +17,9 @@ class ProtectedText:
 
     def __init__(self, source: str):
         self.parts: dict[str, str] = {}
-        prefix = f"CT_LITERAL_{uuid.uuid4().hex}_"
+        prefix = f"CT_LITERAL_{uuid.uuid4().hex[:8]}_"
+        while prefix in source:
+            prefix = f"CT_LITERAL_{uuid.uuid4().hex[:8]}_"
 
         def replace(match):
             token = f"{prefix}{len(self.parts)}_END"

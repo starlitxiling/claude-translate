@@ -10,10 +10,12 @@ from urllib.parse import urlsplit
 import aiohttp
 from aiohttp import web
 
+from claude_translate.agent_context import AgentContext
 from claude_translate.config import TranslationConfig, validate_url
 from claude_translate.deep_seek_translator import DeepSeekTranslator, TranslationError
 from claude_translate.display_translator import DisplayTranslator
 from claude_translate.prompt_registry import PromptRegistry
+from claude_translate.subagent_reports import SubagentReports
 
 LOCAL_HEADER = "X-Claude-Translate-Token"
 HOP_HEADERS = {
@@ -64,21 +66,26 @@ class ProxyServer:
         translator: DeepSeekTranslator,
         registry: PromptRegistry,
         display: DisplayTranslator,
+        reports: SubagentReports,
     ):
         self.upstream = validate_url(upstream)
-        if not token or any(x is None for x in (client, translator, registry, display)):
+        if not token or any(x is None for x in (client, translator, registry, display, reports)):
             raise ValueError("All runtime dependencies and the local access token are required")
         self.token = token
         self.client = client
         self.translator = translator
         self.registry = registry
         self.display = display
+        self.reports = reports
         self.stats = {
             "registered": 0,
             "rewritten_blocks": 0,
             "model_requests": 0,
             "display_batches": 0,
             "display_failures": 0,
+            "subagent_inputs_skipped": 0,
+            "subagent_display_skipped": 0,
+            "subagent_notifications_passthrough": 0,
         }
 
     def application(self) -> web.Application:
@@ -104,6 +111,7 @@ class ProxyServer:
             return web.json_response(
                 {
                     **self.stats,
+                    **self.reports.stats,
                     "translation_calls": self.translator.calls,
                     "cache_hits": self.translator.cache_hits,
                 }
@@ -115,6 +123,12 @@ class ProxyServer:
             prompt = event["prompt"]
             if not isinstance(prompt, str):
                 raise ValueError("Prompt must be text")
+            if AgentContext.is_subagent(event):
+                self.stats["subagent_inputs_skipped"] += 1
+                return web.json_response({"ok": True, "skipped": True})
+            if self.reports.is_known_notification(event):
+                self.stats["subagent_notifications_passthrough"] += 1
+                return web.json_response({"ok": True, "skipped": True})
             translated = self.registry.lookup(prompt)
             if translated is None:
                 translated = await self.translator.translate(prompt, "en")
@@ -122,6 +136,9 @@ class ProxyServer:
             self.stats["registered"] += 1
             return web.json_response({"ok": True})
         if request.path == "/__translate/display":
+            if AgentContext.is_subagent(event):
+                self.stats["subagent_display_skipped"] += 1
+                return web.json_response({"text": event["delta"], "skipped": True})
             self.stats["display_batches"] += 1
             try:
                 translated = await self.display.translate(event)
@@ -129,6 +146,8 @@ class ProxyServer:
             except TranslationError:
                 self.stats["display_failures"] += 1
                 return web.json_response({"text": event["delta"], "fallback": True})
+        if request.path == "/__translate/subagent":
+            return web.json_response(await self.reports.handle(event))
         raise web.HTTPNotFound()
 
     async def forward(self, request: web.Request) -> web.StreamResponse:
@@ -215,6 +234,7 @@ async def serve(config: TranslationConfig, runtime_path: Path):
             translator,
             PromptRegistry(database),
             DisplayTranslator(translator),
+            SubagentReports(translator),
         )
         runner = web.AppRunner(
             proxy.application(), access_log=None, shutdown_timeout=2, handler_cancellation=True

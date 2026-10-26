@@ -37,8 +37,10 @@ class HookClient:
             event = json.load(sys.stdin)
             client = cls(json.loads(runtime_path.read_text()))
             if kind == "submit":
-                client.request("register", {"prompt": event["prompt"]})
+                client.request("register", event)
                 print("{}")
+            elif kind == "subagent":
+                print(json.dumps(client.request("subagent", event), ensure_ascii=False))
             else:
                 result = client.request("display", event)
                 print(
@@ -65,6 +67,9 @@ class HookClient:
                         ensure_ascii=False,
                     )
                 )
-            else:
+            elif kind == "display":
                 print("{}")
                 print("显示翻译连接失败，保留英文原文。", file=sys.stderr)
+            else:
+                print("{}")
+                print("子代理交接翻译不可用，保留英文原报告。", file=sys.stderr)

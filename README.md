@@ -22,6 +22,14 @@ claude-translate doctor
 
 关闭当前会话即停止本次代理；下次运行 `claude` 会重新启用翻译。`claude-original` 可直接运行不带翻译的原版。翻译组件不修改全局 Hook、原模型、工具权限、shell alias 或后台启动项。
 
+### 子代理
+
+Claude Code 原生 `Agent` 子代理内部保持英文，不翻译内部输入、过程消息和工具调用。前台子代理完成后，主会话显示一份“子代理最终报告”的中文阅读副本；后台子代理则在结果通知回到主会话时显示。主模型收到的工具结果和交接内容仍保留原文，主会话的日常回复继续照常翻译。
+
+支持识别 `SubagentHandback` 的真正报告，避免把结束语误当最终内容；相同交接通知会去重。翻译失败时保留原有英文结果，不阻断任务。格式或字面内容保护校验失败时，最多在原超时预算内重试一次。较长报告遵循 Claude 原生 Hook 输出的折叠和文件预览规则。
+
+升级后需新启动 `claude` 才会加载新增 Hook；已有任务可以结束会话后用 `claude --resume` 继续。外部 CLI 自行启动的代理及 Agent Teams 的消息通道不属于这里的原生 Agent 交接范围。
+
 ## 安装与配置
 
 依赖：macOS/Linux、Python 3.12 及以上、uv，以及支持 `MessageDisplay` 的 Claude Code。本机已在 Claude Code 2.1.299 上完成验证；Linux 尚未验证。
@@ -82,6 +90,8 @@ rm -r ~/.config/claude-translate
 ## 组件与验证
 
 `config` 管理配置值；`DeepSeekTranslator` 管理翻译与缓存；`ProtectedText` 保护字面片段；`PromptRegistry` 登记及精确替换输入；`ProxyServer` 代理协议；`DisplayTranslator` 维护跨批次代码围栏；`HookClient` 接入 Claude hooks；`Launcher` 管理进程和临时配置；`CommandIntegration` 管理默认命令接管与恢复。HTTP 客户端及数据库连接通过构造参数显式传递。
+
+`AgentContext` 区分主会话和子代理上下文，`SubagentReports` 管理交接时机和去重。状态接口提供 `subagent_inputs_skipped`、`subagent_display_skipped`、`subagent_reports_displayed`、`subagent_report_failures` 等计数。部分 Claude 运行方式原本就不对内部消息触发显示 Hook，此时跳过计数为零是正常的。
 
 运行本地测试：
 
